@@ -110,14 +110,28 @@ async function screenshotDevelopment() {
  */
 function listSkills() {
   console.log('Available skills:');
+
+  // Check development directory for skills
   const devDir = path.join(process.cwd(), 'development');
-  
+
   if (fs.existsSync(devDir)) {
+    // First check for SKILL.md directly in development/
+    const directSkill = path.join(devDir, 'SKILL.md');
+    if (fs.existsSync(directSkill)) {
+      const content = fs.readFileSync(directSkill, 'utf8');
+      const nameMatch = content.match(/^name:\s*(.+)$/m);
+      const descMatch = content.match(/^description:\s*(.+)$/m);
+      const name = nameMatch ? nameMatch[1] : 'developer-flow';
+      const desc = descMatch ? descMatch[1] : 'No description';
+      console.log(`  - ${name}: ${desc}`);
+    }
+
+    // Then check subdirectories
     const skillDirs = fs.readdirSync(devDir).filter(d => {
       const skillPath = path.join(devDir, d, 'SKILL.md');
-      return fs.existsSync(skillPath);
+      return fs.existsSync(skillPath) && d !== 'SKILL.md';
     });
-    
+
     skillDirs.forEach(dir => {
       const skillPath = path.join(devDir, dir, 'SKILL.md');
       const content = fs.readFileSync(skillPath, 'utf8');
